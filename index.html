@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Road to an Ivy League — For Olivia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:    #0D1F4E;
+    --navy-mid:#2A3F7A;
+    --navy-dk: #080E20;
+    --gold:    #C9930A;
+    --gold-lt: #F5C842;
+    --gold-pale:#FDF3C0;
+    --coral:   #D94F2B;
+    --teal:    #0A7373;
+    --sky:     #D6E8FF;
+    --sky-dk:  #A8C8F0;
+    --white:   #FFFFFF;
+    --cream:   #FFFDF5;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --slide-transition: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--navy-dk);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── PROGRESS BAR ─────────────────────────────────────────── */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold-lt), var(--coral));
+    transition: width 0.4s ease;
+    z-index: 1000;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── SLIDE COUNTER ────────────────────────────────────────── */
+  #slide-counter {
+    position: fixed; top: 16px; right: 20px;
+    font-family: var(--font-body);
+    font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.45);
+    z-index: 1000;
+    transition: color 0.3s;
+  }
+  #slide-counter.on-light { color: rgba(8,14,32,0.4); }
+
+  /* ── NAV BUTTONS ──────────────────────────────────────────── */
+  .nav-btn {
+    position: fixed; bottom: 28px;
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    color: white; font-size: 20px;
+    cursor: pointer; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.5); transform: scale(1.08); }
+  .nav-btn:disabled { opacity: 0.2; cursor: default; transform: none; }
+  .nav-btn.on-light { border-color: rgba(8,14,32,0.2); background: rgba(8,14,32,0.06); color: var(--navy); }
+  .nav-btn.on-light:hover { background: rgba(8,14,32,0.12); }
+  #btn-prev { left: calc(50% - 60px); }
+  #btn-next { left: calc(50% + 12px); }
+
+  /* ── SLIDE DOTS ───────────────────────────────────────────── */
+  #dots {
+    position: fixed; bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 7px; z-index: 999;
+    pointer-events: none;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    transition: all 0.3s;
+  }
+  .dot.active { background: var(--gold-lt); width: 20px; border-radius: 3px; }
+  .dot.on-light { background: rgba(8,14,32,0.2); }
+  .dot.on-light.active { background: var(--navy); }
+
+  /* ── SLIDES CONTAINER ─────────────────────────────────────── */
+  #deck {
+    width: 100%; height: 100%;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--slide-transition);
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1; pointer-events: all;
+  }
+
+  /* ── MUSICAL NOTE PARTICLES ───────────────────────────────── */
+  .notes-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none; overflow: hidden; z-index: 0;
+  }
+  .note-particle {
+    position: absolute;
+    font-size: 18px;
+    opacity: 0;
+    animation: floatNote linear infinite;
+    user-select: none;
+  }
+  @keyframes floatNote {
+    0%   { opacity: 0; transform: translateY(0) rotate(0deg); }
+    10%  { opacity: 0.18; }
+    85%  { opacity: 0.12; }
+    100% { opacity: 0; transform: translateY(-110vh) rotate(30deg); }
+  }
+
+  /* ── SHARED LAYOUT HELPERS ────────────────────────────────── */
+  .slide-inner {
+    position: relative; z-index: 1;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: clamp(24px, 4vw, 56px);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-body); font-size: 11px;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 100px;
+    width: fit-content;
+  }
+  .section-label {
+    font-family: var(--font-body); font-size: 11px;
+    font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 12px; opacity: 0.65;
+  }
+  .card {
+    border-radius: 16px; padding: 22px 24px;
+  }
+
+  /* animate-in classes */
+  .anim-up {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .slide.active .anim-up { opacity: 1; transform: translateY(0); }
+  .anim-up:nth-child(1) { transition-delay: 0.05s; }
+  .anim-up:nth-child(2) { transition-delay: 0.15s; }
+  .anim-up:nth-child(3) { transition-delay: 0.25s; }
+  .anim-up:nth-child(4) { transition-delay: 0.35s; }
+  .anim-up:nth-child(5) { transition-delay: 0.42s; }
+  .anim-up:nth-child(6) { transition-delay: 0.48s; }
+  .anim-up:nth-child(7) { transition-delay: 0.52s; }
+  .anim-up:nth-child(8) { transition-delay: 0.56s; }
+  .anim-up:nth-child(9) { transition-delay: 0.60s; }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 1 — TITLE */
+  /* ══════════════════════════════════════════════════════════ */
+  #s1 { background: var(--navy); }
+  #s1 .slide-inner {
+    align-items: center; justify-content: center; text-align: center; gap: 0;
+  }
+  #s1 .emoji-row {
+    font-size: clamp(22px, 3.5vw, 38px);
+    letter-spacing: 0.12em;
+    margin-bottom: clamp(14px, 2vw, 28px);
+  }
+  #s1 .sub-title {
+    font-family: var(--font-display); font-style: italic;
+    font-size: clamp(16px, 2vw, 24px); color: var(--gold-lt);
+    margin-bottom: 6px; letter-spacing: 0.02em;
+  }
+  #s1 h1 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(52px, 9vw, 110px);
+    color: var(--white); line-height: 1;
+    margin-bottom: clamp(16px, 2.5vw, 32px);
+    text-shadow: 0 4px 40px rgba(245,200,66,0.18);
+  }
+  #s1 .byline {
+    font-family: var(--font-body); font-size: clamp(14px, 1.5vw, 18px);
+    color: var(--sky); font-weight: 300; letter-spacing: 0.04em;
+    margin-bottom: clamp(18px, 2.5vw, 36px);
+  }
+  #s1 .gold-rule {
+    width: 80px; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+    margin: 0 auto clamp(16px, 2vw, 28px);
+  }
+  #s1 .tagline {
+    font-size: clamp(12px, 1.2vw, 15px); color: var(--sky-dk);
+    font-style: italic; max-width: 560px; line-height: 1.7;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 2 — WHO OLIVIA IS */
+  /* ══════════════════════════════════════════════════════════ */
+  #s2 { background: var(--cream); }
+  #s2 .slide-inner { gap: 0; }
+  #s2 .banner {
+    background: var(--navy); color: var(--white);
+    border-radius: 14px; padding: 14px 24px;
+    font-family: var(--font-body); font-weight: 600;
+    font-size: clamp(12px, 1.3vw, 16px); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #s2 .orbit-layout {
+    flex: 1; display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 10px; align-items: center;
+  }
+  #s2 .centre-cell {
+    display: flex; align-items: center; justify-content: center;
+  }
+  #s2 .olivia-circle {
+    width: clamp(100px, 14vw, 170px);
+    height: clamp(100px, 14vw, 170px);
+    border-radius: 50%; background: var(--navy);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    box-shadow: 0 8px 40px rgba(13,31,78,0.35);
+  }
+  #s2 .olivia-circle .name {
+    font-family: var(--font-display); font-weight: 700;
+    color: var(--white); font-size: clamp(18px, 2.5vw, 28px);
+  }
+  #s2 .olivia-circle .star { font-size: clamp(20px, 2.5vw, 28px); margin-top: 2px; }
+  .trait-card {
+    border-radius: 14px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 3px;
+    min-height: 70px;
+  }
+  .trait-card .t-title {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(11px, 1.1vw, 14px); color: var(--white);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .trait-card .t-sub {
+    font-size: clamp(9px, 0.85vw, 11.5px); color: rgba(255,255,255,0.82);
+    line-height: 1.45; font-family: var(--font-body);
+  }
+  .trait-card.gold-card .t-title { color: var(--navy-dk); }
+  .trait-card.gold-card .t-sub   { color: rgba(8,14,32,0.72); }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 3 — MUSICAL GIFT */
+  /* ══════════════════════════════════════════════════════════ */
+  #s3 { background: var(--navy); }
+  #s3 .slide-inner { gap: 16px; }
+  #s3 .top-row { display: flex; gap: 20px; flex: 1; }
+  #s3 .left-panel {
+    width: 34%; background: var(--navy-mid);
+    border-radius: 20px; padding: 28px 24px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; gap: 10px;
+  }
+  #s3 .left-panel .big-note { font-size: clamp(40px, 5vw, 64px); }
+  #s3 .left-panel .headline {
+    font-family: var(--font-display); font-size: clamp(16px, 2vw, 24px);
+    font-weight: 700; color: var(--gold-lt); line-height: 1.25;
+  }
+  #s3 .left-panel .body {
+    font-size: clamp(11px, 1.05vw, 14px); color: rgba(255,255,255,0.82);
+    line-height: 1.65;
+  }
+  #s3 .inst-grid {
+    flex: 1; display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .inst-card {
+    background: var(--navy-dk);
+    border: 1px solid rgba(245,200,66,0.15);
+    border-radius: 14px; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .inst-card:hover { border-color: rgba(245,200,66,0.5); transform: translateY(-2px); }
+  .inst-card .i-emoji { font-size: clamp(20px, 2.2vw, 28px); }
+  .inst-card .i-name {
+    font-family: var(--font-display); font-weight: 600;
+    color: var(--gold-lt); font-size: clamp(12px, 1.2vw, 16px);
+  }
+  .inst-card .i-desc {
+    font-size: clamp(10px, 0.9vw, 12.5px); color: var(--sky-dk);
+    line-height: 1.5;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 4 — THE AND NOT THE OR */
+  /* ══════════════════════════════════════════════════════════ */
+  #s4 { background: var(--cream); }
+  #s4 .slide-inner { gap: 16px; }
+  #s4 .hero-box {
+    background: var(--navy); border-radius: 20px;
+    padding: clamp(22px, 3vw, 38px) clamp(24px, 4vw, 52px);
+    text-align: center;
+  }
+  #s4 .hero-box .strike {
+    font-family: var(--font-display); font-size: clamp(18px, 2.4vw, 30px);
+    font-weight: 700; color: var(--coral); margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  #s4 .hero-box .truth {
+    font-family: var(--font-display); font-size: clamp(14px, 1.7vw, 22px);
+    font-style: italic; color: var(--gold-lt); line-height: 1.4;
+  }
+  #s4 .compare-row { display: flex; gap: 14px; flex: 1; }
+  #s4 .compare-card {
+    flex: 1; border-radius: 18px; padding: 22px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  #s4 .compare-card h3 {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(13px, 1.3vw, 16px);
+  }
+  #s4 .compare-card ul {
+    list-style: none; display: flex; flex-direction: column; gap: 8px;
+  }
+  #s4 .compare-card ul li {
+    font-size: clamp(11px, 1.05vw, 14px); line-height: 1.5;
+    padding-left: 18px; position: relative;
+  }
+  #s4 .compare-card ul li::before {
+    content: '•'; position: absolute; left: 0;
+  }
+  #s4 .card-bad  { background: #FFF0EC; }
+  #s4 .card-bad h3 { color: var(--coral); }
+  #s4 .card-bad ul li { color: #5A2010; }
+  #s4 .card-bad ul li::before { color: var(--coral); }
+  #s4 .card-good { background: var(--sky); }
+  #s4 .card-good h3 { color: var(--navy); }
+  #s4 .card-good ul li { color: var(--navy-dk); }
+  #s4 .card-good ul li::before { color: var(--navy); }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 5 — ROLE MODELS */
+  /* ══════════════════════════════════════════════════════════ */
+  #s5 { background: var(--navy); }
+  #s5 .slide-inner { gap: 12px; }
+  #s5 .sub-note {
+    font-style: italic; font-size: clamp(11px, 1.1vw, 14px);
+    color: var(--sky-dk); text-align: center;
+  }
+  #s5 .people-grid {
+    flex: 1; display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .person-card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(245,200,66,0.12);
+    border-radius: 16px; padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .person-card:hover { border-color: rgba(245,200,66,0.4); transform: translateY(-3px); }
+  .person-card .p-name {
+    font-family: var(--font-display); font-weight: 600;
+    color: var(--gold-lt); font-size: clamp(12px, 1.2vw, 15px);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .person-card .p-desc {
+    font-size: clamp(10px, 0.9vw, 12.5px); color: rgba(255,255,255,0.8);
+    line-height: 1.55;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 6 — WHAT IVY LEAGUE MEANS */
+  /* ══════════════════════════════════════════════════════════ */
+  #s6 { background: var(--cream); }
+  #s6 .slide-inner { gap: 14px; }
+  #s6 .schools-line {
+    font-style: italic; font-size: clamp(11px, 1.1vw, 14px);
+    color: var(--navy-mid); text-align: center;
+  }
+  #s6 .three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  #s6 .ivy-card {
+    background: var(--navy); border-radius: 18px;
+    padding: 22px 18px; text-align: center;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: transform 0.2s;
+  }
+  #s6 .ivy-card:hover { transform: translateY(-3px); }
+  #s6 .ivy-card .i-icon { font-size: clamp(24px, 2.8vw, 36px); }
+  #s6 .ivy-card h3 {
+    font-family: var(--font-display); font-weight: 700;
+    color: var(--gold-lt); font-size: clamp(13px, 1.4vw, 17px);
+  }
+  #s6 .ivy-card p {
+    font-size: clamp(10.5px, 0.95vw, 13px); color: rgba(255,255,255,0.82);
+    line-height: 1.6;
+  }
+  #s6 .olivia-fit {
+    background: var(--sky); border-radius: 18px;
+    padding: 18px 24px; display: flex; flex-direction: column; gap: 6px;
+  }
+  #s6 .olivia-fit h3 {
+    font-family: var(--font-display); font-weight: 600;
+    color: var(--navy); font-size: clamp(13px, 1.3vw, 16px);
+  }
+  #s6 .olivia-fit p {
+    font-size: clamp(11px, 1.05vw, 14px); color: var(--navy-dk);
+    line-height: 1.65;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 7 — THE ROAD (timeline) */
+  /* ══════════════════════════════════════════════════════════ */
+  #s7 { background: var(--navy); }
+  #s7 .slide-inner { gap: 14px; }
+  #s7 .timeline-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; gap: 0;
+  }
+  #s7 .cards-row { display: flex; gap: 10px; }
+  #s7 .tl-card-top {
+    flex: 1; border-radius: 14px; padding: 14px 14px 10px;
+    display: flex; flex-direction: column; gap: 4px;
+    min-height: 90px;
+  }
+  #s7 .tl-card-top .tl-label {
+    font-family: var(--font-body); font-size: 10px;
+    font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.8; color: var(--white);
+  }
+  #s7 .tl-card-top .tl-title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(13px, 1.5vw, 18px); color: var(--white);
+  }
+  #s7 .timeline-spine {
+    display: flex; align-items: center; gap: 0;
+    margin: 6px 0;
+  }
+  #s7 .spine-line {
+    flex: 1; height: 3px;
+    background: linear-gradient(90deg, var(--gold-lt), var(--coral));
+  }
+  #s7 .spine-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 3px solid var(--white);
+    flex-shrink: 0;
+  }
+  #s7 .spine-segment {
+    flex: 1; display: flex; align-items: center;
+    position: relative;
+  }
+  #s7 .spine-segment .spine-line { flex: 1; }
+  #s7 .tl-card-bot {
+    flex: 1; background: var(--navy-mid);
+    border: 1px solid rgba(245,200,66,0.15);
+    border-radius: 14px; padding: 12px 14px;
+    font-size: clamp(10px, 0.95vw, 13px);
+    color: rgba(255,255,255,0.85); line-height: 1.6;
+    min-height: 80px;
+  }
+  #s7 .bottom-note {
+    font-style: italic; font-size: clamp(11px, 1.05vw, 14px);
+    color: var(--gold-lt); text-align: center; opacity: 0.85;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 8 — CAREER DOORS */
+  /* ══════════════════════════════════════════════════════════ */
+  #s8 { background: var(--cream); }
+  #s8 .slide-inner { gap: 12px; }
+  #s8 .careers-grid {
+    flex: 1; display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .career-card {
+    border-radius: 16px; padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.2s;
+  }
+  .career-card:hover { transform: translateY(-3px); }
+  .career-card .c-top {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 2px;
+  }
+  .career-card .c-icon-wrap {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-lt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .career-card .c-title {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(12px, 1.2vw, 15px); color: var(--gold-lt);
+  }
+  .career-card .c-desc {
+    font-size: clamp(10px, 0.9vw, 12.5px);
+    color: rgba(255,255,255,0.82); line-height: 1.55;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 9 — HONEST TRUTH */
+  /* ══════════════════════════════════════════════════════════ */
+  #s9 { background: var(--navy); }
+  #s9 .slide-inner { gap: 14px; }
+  #s9 .central-quote {
+    background: var(--teal); border-radius: 18px;
+    padding: clamp(16px, 2vw, 26px) clamp(20px, 3vw, 40px);
+    text-align: center;
+  }
+  #s9 .central-quote p {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(15px, 1.8vw, 22px); color: var(--gold-lt);
+    line-height: 1.4;
+  }
+  #s9 .truths-grid {
+    flex: 1; display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+  }
+  .truth-card {
+    background: var(--navy-mid);
+    border-radius: 16px; padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.2s;
+  }
+  .truth-card:hover { transform: translateY(-2px); }
+  .truth-card .tc-top {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .truth-card .tc-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    font-family: var(--font-body);
+  }
+  .truth-card .tc-head {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(12px, 1.2vw, 15px); line-height: 1.3;
+    padding-top: 3px;
+  }
+  .truth-card .tc-body {
+    font-size: clamp(10.5px, 0.95vw, 13px);
+    color: rgba(255,255,255,0.82); line-height: 1.6;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 10 — DISCIPLINE */
+  /* ══════════════════════════════════════════════════════════ */
+  #s10 { background: var(--cream); }
+  #s10 .slide-inner { gap: 14px; }
+  #s10 .disc-sub {
+    font-style: italic; font-size: clamp(11px, 1.05vw, 14px);
+    color: var(--navy-mid); text-align: center;
+  }
+  #s10 .two-panels { display: flex; gap: 14px; flex: 1; }
+  #s10 .panel {
+    flex: 1; background: var(--sky); border-radius: 18px;
+    padding: 20px 22px; display: flex; flex-direction: column; gap: 10px;
+  }
+  #s10 .panel h3 {
+    font-family: var(--font-display); font-weight: 700;
+    color: var(--navy); font-size: clamp(13px, 1.3vw, 17px);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .rhythm-row {
+    display: flex; background: var(--white);
+    border-radius: 10px; overflow: hidden;
+    font-size: clamp(10.5px, 0.95vw, 13px);
+  }
+  .rhythm-row.alt { background: #DCF0FF; }
+  .rhythm-row .r-key {
+    background: var(--navy); color: var(--white);
+    padding: 8px 12px; font-weight: 600;
+    min-width: 38%; display: flex; align-items: center;
+    font-size: clamp(10px, 0.9vw, 12px);
+  }
+  .rhythm-row .r-val {
+    padding: 8px 12px; color: var(--navy-dk);
+    display: flex; align-items: center; line-height: 1.4;
+  }
+  .commit-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: clamp(10.5px, 0.95vw, 13px); color: var(--navy-dk);
+    line-height: 1.5;
+  }
+  .commit-item .ci-check {
+    color: var(--teal); font-size: 14px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 11 — THE DEAL */
+  /* ══════════════════════════════════════════════════════════ */
+  #s11 { background: var(--navy); }
+  #s11 .slide-inner { gap: 14px; }
+  #s11 .deal-cols { display: flex; gap: 14px; flex: 1; }
+  #s11 .deal-col { flex: 1; display: flex; flex-direction: column; gap: 0; }
+  #s11 .deal-header {
+    border-radius: 12px 12px 0 0; padding: 12px 20px;
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(13px, 1.4vw, 17px); color: var(--navy-dk);
+  }
+  #s11 .deal-body {
+    flex: 1; background: var(--navy-mid);
+    border-radius: 0 0 16px 16px; padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .deal-item {
+    font-size: clamp(10.5px, 0.95vw, 13px); color: var(--white);
+    line-height: 1.5; display: flex; align-items: flex-start; gap: 7px;
+  }
+
+  /* ══════════════════════════════════════════════════════════ */
+  /* SLIDE 12 — FINALE */
+  /* ══════════════════════════════════════════════════════════ */
+  #s12 { background: var(--cream); }
+  #s12 .slide-inner {
+    align-items: center; justify-content: center;
+    text-align: center; gap: 0;
+  }
+  #s12 .finale-emoji {
+    font-size: clamp(22px, 3vw, 36px); letter-spacing: 0.15em;
+    margin-bottom: clamp(10px, 1.5vw, 20px);
+  }
+  #s12 h2 {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(36px, 6vw, 72px); color: var(--navy);
+    line-height: 1.05; margin-bottom: clamp(16px, 2vw, 28px);
+  }
+  #s12 .vision-box {
+    background: var(--navy); border-radius: 20px;
+    padding: clamp(20px, 2.5vw, 36px) clamp(24px, 3.5vw, 56px);
+    max-width: 820px; margin-bottom: clamp(16px, 2vw, 28px);
+  }
+  #s12 .vision-box p {
+    font-family: var(--font-display); font-style: italic;
+    font-size: clamp(13px, 1.5vw, 19px); color: var(--white);
+    line-height: 1.75;
+  }
+  #s12 .vision-box p + p { margin-top: 10px; }
+  #s12 .finale-pills {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  }
+  .finale-pill {
+    padding: 12px 28px; border-radius: 100px;
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(13px, 1.4vw, 17px);
+    display: flex; align-items: center; gap: 8px;
+    transition: transform 0.2s;
+  }
+  .finale-pill:hover { transform: scale(1.05); }
+  .finale-pill.gold  { background: var(--gold-lt); color: var(--navy-dk); }
+  .finale-pill.navy  { background: var(--navy); color: var(--white); }
+  .finale-pill.coral { background: var(--coral); color: var(--white); }
+  #s12 .mum-note {
+    margin-top: clamp(12px, 1.5vw, 20px);
+    font-style: italic; font-size: clamp(12px, 1.1vw, 15px);
+    color: var(--navy-mid);
+  }
+
+  /* ── RESPONSIVE MOBILE ────────────────────────────────────── */
+  @media (max-width: 600px) {
+    #s2 .orbit-layout { grid-template-columns: 1fr 1fr; gap: 7px; }
+    #s3 .top-row { flex-direction: column; }
+    #s3 .left-panel { width: 100%; padding: 16px; flex-direction: row; gap: 14px; text-align: left; }
+    #s3 .inst-grid { grid-template-columns: 1fr 1fr; }
+    #s5 .people-grid { grid-template-columns: 1fr 1fr; }
+    #s6 .three-col { grid-template-columns: 1fr; }
+    #s7 .cards-row { flex-direction: column; gap: 6px; }
+    #s8 .careers-grid { grid-template-columns: 1fr 1fr; }
+    #s9 .truths-grid { grid-template-columns: 1fr; }
+    #s10 .two-panels { flex-direction: column; }
+    #s11 .deal-cols { flex-direction: column; }
+    #s12 .finale-pills { flex-direction: column; align-items: center; }
+    #btn-prev { left: 20px; }
+    #btn-next { right: 20px; left: auto; }
+    #dots { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note-particle { animation: none !important; }
+    .slide { transition: none; }
+    .anim-up { transition: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+<div id="slide-counter">1 / 12</div>
+
+<!-- Navigation -->
+<button class="nav-btn" id="btn-prev" aria-label="Previous slide">&#8592;</button>
+<button class="nav-btn" id="btn-next" aria-label="Next slide">&#8594;</button>
+
+<!-- Dot navigation -->
+<div id="dots"></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="deck">
+
+  <!-- ── SLIDE 1 — TITLE ─────────────────────────────────── -->
+  <div class="slide" id="s1" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-1"></div>
+    <div class="slide-inner">
+      <div class="emoji-row anim-up">🎵 &nbsp; 🎓 &nbsp; 🎻 &nbsp; ⭐ &nbsp; 🥁 &nbsp; 🎹</div>
+      <div class="sub-title anim-up">Road to an</div>
+      <h1 class="anim-up">Ivy League</h1>
+      <div class="byline anim-up">A Letter From Mum &nbsp;·&nbsp; For Olivia</div>
+      <div class="gold-rule anim-up"></div>
+      <div class="tagline anim-up">Presented with love, ambition, and an absolute refusal to let talent go to waste. 💛<br>
+        <em style="font-size:0.9em; opacity:0.75; display:block; margin-top:8px;">Semi-playful. Entirely serious. One hundred percent true.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2 — WHO OLIVIA IS ─────────────────────────── -->
+  <div class="slide" id="s2" data-theme="light">
+    <div class="slide-inner">
+      <div class="banner anim-up">🌟 &nbsp; LET THE RECORD SHOW — WHO OLIVIA ACTUALLY IS</div>
+      <div class="orbit-layout">
+        <!-- Row 1 -->
+        <div class="trait-card anim-up" style="background:#0A7373;">
+          <div class="t-title">🎵 Musical Genius</div>
+          <div class="t-sub">Voice, drums, violin, piano, DJ &amp; music apps</div>
+        </div>
+        <div class="trait-card anim-up" style="background:#0D1F4E;">
+          <div class="t-title">🎭 Performer</div>
+          <div class="t-sub">Commanding stage presence and natural charisma</div>
+        </div>
+        <div class="trait-card gold-card anim-up" style="background:#F5C842;">
+          <div class="t-title">✨ Inspires People</div>
+          <div class="t-sub">Her presence alone lifts the room around her</div>
+        </div>
+        <!-- Row 2 -->
+        <div class="trait-card anim-up" style="background:#2A3F7A;">
+          <div class="t-title">📚 Excellent Student</div>
+          <div class="t-sub">Quick, bright — learns new concepts remarkably fast</div>
+        </div>
+        <div class="centre-cell anim-up">
+          <div class="olivia-circle">
+            <div class="name">Olivia</div>
+            <div class="star">⭐</div>
+          </div>
+        </div>
+        <div class="trait-card anim-up" style="background:#D94F2B;">
+          <div class="t-title">🌍 Big Dreams</div>
+          <div class="t-sub">Refined tastes, soaring ambitions, huge vision</div>
+        </div>
+        <!-- Row 3 -->
+        <div class="trait-card anim-up" style="background:#D94F2B;">
+          <div class="t-title">😂 Funny &amp; Warm</div>
+          <div class="t-sub">Brings calm, joy &amp; laughter wherever she goes</div>
+        </div>
+        <div class="trait-card gold-card anim-up" style="background:#F5C842;">
+          <div class="t-title">🎨 Creative &amp; Stylish</div>
+          <div class="t-sub">Strong sense of colour, style &amp; aesthetic</div>
+        </div>
+        <div class="trait-card anim-up" style="background:#2A3F7A;">
+          <div class="t-title">💜 Kind &amp; Thoughtful</div>
+          <div class="t-sub">Loving, generous, emotionally intelligent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3 — THE MUSICAL GIFT ─────────────────────── -->
+  <div class="slide" id="s3" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-3"></div>
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#0A7373; color:#F5C842;">🎵 &nbsp; THE MUSICAL GIFT — AND WHY IT MAKES THIS MORE POSSIBLE</div>
+      <div class="top-row">
+        <div class="left-panel anim-up">
+          <div class="big-note">🎶</div>
+          <div class="headline">Six instruments.<br>One voice.<br>Infinite potential.</div>
+          <div class="body">Olivia does not simply "enjoy" music. She inhabits it. She learns instruments the way other people learn to breathe — naturally, quickly, and completely.<br><br>This level of discipline is the same brain that will ace exams. The same focus. The same gift.</div>
+        </div>
+        <div class="inst-grid">
+          <div class="inst-card anim-up"><div class="i-emoji">🎤</div><div class="i-name">Voice / Singing</div><div class="i-desc">Not just capable — gifted. Emotional range, pitch, feel.</div></div>
+          <div class="inst-card anim-up"><div class="i-emoji">🥁</div><div class="i-name">Drums</div><div class="i-desc">Rhythm and timing that most musicians spend years chasing.</div></div>
+          <div class="inst-card anim-up"><div class="i-emoji">🎻</div><div class="i-name">Violin</div><div class="i-desc">Classical discipline. The foundation that trains the ear.</div></div>
+          <div class="inst-card anim-up"><div class="i-emoji">🎹</div><div class="i-name">Piano</div><div class="i-desc">Theory, harmony, composition — the language of music.</div></div>
+          <div class="inst-card anim-up"><div class="i-emoji">🎧</div><div class="i-name">DJing</div><div class="i-desc">Contemporary artistry. Production, flow, crowd reading.</div></div>
+          <div class="inst-card anim-up"><div class="i-emoji">📱</div><div class="i-name">Music Apps</div><div class="i-desc">Digital production — the future of music making.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4 — AND NOT OR ────────────────────────────── -->
+  <div class="slide" id="s4" data-theme="light">
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#0D1F4E; color:#F5C842;">⚡ THE MOST IMPORTANT THING MUM WANTS OLIVIA TO KNOW</div>
+      <div class="hero-box anim-up">
+        <div class="strike">Olivia is not talented OR academic.</div>
+        <div class="truth">She is talented AND academic. These are not opposites. They are her superpowers.</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-card card-bad anim-up">
+          <h3>😬 &nbsp; What the world sometimes says:</h3>
+          <ul>
+            <li>"You're creative — school isn't really your thing."</li>
+            <li>"Arts and academics don't mix."</li>
+            <li>"Just focus on the music — it's what you're good at."</li>
+            <li>"You'll figure it all out eventually."</li>
+          </ul>
+        </div>
+        <div class="compare-card card-good anim-up">
+          <h3>💛 &nbsp; What Mum knows to be absolutely true:</h3>
+          <ul>
+            <li>The greatest artists are also deeply, broadly educated.</li>
+            <li>Musical discipline is the same discipline that aces exams.</li>
+            <li>Good grades keep every door open — including the music ones.</li>
+            <li>Olivia has what it takes for BOTH. Always has. Always will.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5 — ROLE MODELS ───────────────────────────── -->
+  <div class="slide" id="s5" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-5"></div>
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#D94F2B; color:#fff;">🏆 &nbsp; PEOPLE WHO HAD THE GIFT — AND DID THE WORK</div>
+      <div class="sub-note anim-up">(These are real people. Mum did not make any of this up.)</div>
+      <div class="people-grid">
+        <div class="person-card anim-up"><div class="p-name">🎹 Condoleezza Rice</div><div class="p-desc">Trained concert pianist. Also US Secretary of State and Stanford professor. The piano did not stop her — it made her sharper.</div></div>
+        <div class="person-card anim-up"><div class="p-name">🎤 Viola Davis</div><div class="p-desc">Emmy, Grammy, Oscar &amp; Tony winner. Juilliard School graduate. She studied hard AND became the most awarded Black actress in history.</div></div>
+        <div class="person-card anim-up"><div class="p-name">🎸 Brian May</div><div class="p-desc">Lead guitarist of Queen. Also holds a PhD in Astrophysics from Imperial College London. He went back and finished it — because he could.</div></div>
+        <div class="person-card anim-up"><div class="p-name">⚖️ Lupita Nyong'o</div><div class="p-desc">Oscar-winning actress and Yale Drama School graduate. The degree did not dim the talent. It gave it a stage worthy of her.</div></div>
+        <div class="person-card anim-up"><div class="p-name">🌍 Wangari Maathai</div><div class="p-desc">Nobel Peace Prize winner, professor, activist — and she sang. Education was the foundation that made everything else possible.</div></div>
+        <div class="person-card anim-up"><div class="p-name">🎭 Shirin Ebadi</div><div class="p-desc">Nobel Peace Prize–winning lawyer and passionate arts advocate. Degrees AND conviction. Brilliance refuses to be boxed in.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6 — IVY LEAGUE MEANING ───────────────────── -->
+  <div class="slide" id="s6" data-theme="light">
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#C9930A; color:#fff;">🎓 &nbsp; WHAT 'IVY LEAGUE' ACTUALLY MEANS FOR OLIVIA</div>
+      <div class="schools-line anim-up">Harvard · Yale · Princeton · Columbia · Oxford · Cambridge · LSE · Juilliard · RADA · The world's great institutions.</div>
+      <div class="three-col">
+        <div class="ivy-card anim-up"><div class="i-icon">🚪</div><h3>It Means Options</h3><p>When you have the grades, the world opens. You are not limited to what is available — you get to choose from the best. That choice is everything.</p></div>
+        <div class="ivy-card anim-up"><div class="i-icon">🎖️</div><h3>It Means Recognition</h3><p>Ivy League credentials tell every room you walk into that you were disciplined, brilliant, and driven. People listen differently. Doors open differently.</p></div>
+        <div class="ivy-card anim-up"><div class="i-icon">🌍</div><h3>It Means Impact</h3><p>The people who change the world — lead nations, build movements, define art — overwhelmingly come from places that demanded the best of them.</p></div>
+      </div>
+      <div class="olivia-fit anim-up">
+        <h3>💛 &nbsp; Why Olivia is already built for this:</h3>
+        <p>She is musically multi-talented — Ivy League arts programmes fight for students like her. She learns fast — that is literally the number one trait these schools select for. She is kind, creative, and emotionally intelligent — and the world's best universities are increasingly selecting for that too. She is already exceptional. She simply needs to show up on paper the way she shows up in life.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7 — THE ROAD ──────────────────────────────── -->
+  <div class="slide" id="s7" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-7"></div>
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#C9930A; color:#080E20;">🗺️ &nbsp; THE ROAD — WHAT IT ACTUALLY LOOKS LIKE</div>
+      <div class="timeline-wrap">
+        <div class="cards-row anim-up">
+          <div class="tl-card-top" style="background:#D94F2B;"><div class="tl-label">Now</div><div class="tl-title">Show Up</div></div>
+          <div class="tl-card-top" style="background:#0A7373;"><div class="tl-label">Year 11</div><div class="tl-title">Build the Record</div></div>
+          <div class="tl-card-top" style="background:#2A3F7A;"><div class="tl-label">Year 12–13</div><div class="tl-title">A-Levels / IB</div></div>
+          <div class="tl-card-top" style="background:#D94F2B;"><div class="tl-label">Applications</div><div class="tl-title">Apply</div></div>
+          <div class="tl-card-top" style="background:#C9930A;"><div class="tl-label" style="color:#080E20;">18+</div><div class="tl-title" style="color:#080E20;">Olivia Arrives</div></div>
+        </div>
+        <div class="timeline-spine anim-up">
+          <div style="flex:1;height:3px;background:linear-gradient(90deg,#D94F2B,#F5C842);"></div>
+          <div class="spine-dot" style="background:#D94F2B;margin:0 8px;"></div>
+          <div style="flex:1;height:3px;background:linear-gradient(90deg,#D94F2B,#0A7373);"></div>
+          <div class="spine-dot" style="background:#0A7373;margin:0 8px;"></div>
+          <div style="flex:1;height:3px;background:linear-gradient(90deg,#0A7373,#2A3F7A);"></div>
+          <div class="spine-dot" style="background:#2A3F7A;margin:0 8px;"></div>
+          <div style="flex:1;height:3px;background:linear-gradient(90deg,#2A3F7A,#D94F2B);"></div>
+          <div class="spine-dot" style="background:#D94F2B;margin:0 8px;"></div>
+          <div style="flex:1;height:3px;background:linear-gradient(90deg,#D94F2B,#F5C842);"></div>
+          <div class="spine-dot" style="background:#F5C842;margin:0 8px;"></div>
+          <div style="flex:1;height:3px;background:#F5C842;"></div>
+        </div>
+        <div class="cards-row anim-up">
+          <div class="tl-card-bot">Every class. Every assignment. Full engagement.</div>
+          <div class="tl-card-bot">GCSEs strong across all subjects. Music portfolio growing.</div>
+          <div class="tl-card-bot">Choose wisely. Aim high. Extracurriculars shine.</div>
+          <div class="tl-card-bot">Personal statement. Audition portfolio. Letters of rec.</div>
+          <div class="tl-card-bot" style="border-color:rgba(245,200,66,0.4);">Dr. Olivia.<br>Advocate Olivia.<br>Director Olivia.</div>
+        </div>
+      </div>
+      <div class="bottom-note anim-up">Every step is reachable. Olivia has the raw material for all of it — she just needs to show up and do the work.</div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8 — CAREER DOORS ─────────────────────────── -->
+  <div class="slide" id="s8" data-theme="light">
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#0D1F4E; color:#F5C842;">🚪 &nbsp; THE DOORS GOOD GRADES OPEN FOR OLIVIA SPECIFICALLY</div>
+      <div class="schools-line anim-up" style="color:#2A3F7A;">Every one of these paths is perfectly tailored to who she already is. The door just needs a key.</div>
+      <div class="careers-grid">
+        <div class="career-card anim-up" style="background:#0D1F4E;"><div class="c-top"><div class="c-icon-wrap">⚖️</div><div class="c-title">Entertainment Lawyer</div></div><div class="c-desc">Protect artists. Negotiate deals. Shape the music industry from inside. Law is performance — she would be extraordinary.</div></div>
+        <div class="career-card anim-up" style="background:#0A7373;"><div class="c-top"><div class="c-icon-wrap">🎬</div><div class="c-title">Performing Arts Director</div></div><div class="c-desc">Lead a theatre, film studio, conservatoire. Combine creative vision with institutional leadership. Run the room.</div></div>
+        <div class="career-card anim-up" style="background:#D94F2B;"><div class="c-top"><div class="c-icon-wrap">🏥</div><div class="c-title">Doctor / Surgeon</div></div><div class="c-desc">Heals people. Commands respect everywhere. The sciences must be strong — Mum knows she can do it.</div></div>
+        <div class="career-card anim-up" style="background:#2A3F7A;"><div class="c-top"><div class="c-icon-wrap">🎵</div><div class="c-title">Music Producer &amp; Entrepreneur</div></div><div class="c-desc">The business of music needs contract law, finance, strategy. A degree turns a talent into an empire.</div></div>
+        <div class="career-card anim-up" style="background:#0D1F4E;"><div class="c-top"><div class="c-icon-wrap">🌍</div><div class="c-title">Diplomat / Cultural Attaché</div></div><div class="c-desc">Arts + law + languages + emotional intelligence. Represent Kenya on the world stage. Change policy through culture.</div></div>
+        <div class="career-card anim-up" style="background:#0A7373;"><div class="c-top"><div class="c-icon-wrap">🎓</div><div class="c-title">Arts Academic &amp; Scholar</div></div><div class="c-desc">Lead a university music department. Shape the next generation of African artists. Professor Olivia has a beautiful ring to it.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 9 — HONEST TRUTH ─────────────────────────── -->
+  <div class="slide" id="s9" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-9"></div>
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#D94F2B; color:#fff;">💬 &nbsp; THE HONEST TRUTH — BECAUSE OLIVIA DESERVES IT STRAIGHT</div>
+      <div class="central-quote anim-up">
+        <p>Talent gets you noticed. Discipline gets you there. Education keeps you there.</p>
+      </div>
+      <div class="truths-grid">
+        <div class="truth-card anim-up">
+          <div class="tc-top"><div class="tc-num" style="background:#F5C842;color:#080E20;">01</div><div class="tc-head" style="color:#F5C842;">The music industry does not reward talent alone.</div></div>
+          <div class="tc-body">Even the most gifted artists get dropped, underpaid, overlooked. The ones who thrive have a business brain, a backup plan, or a degree. Olivia can have all three.</div>
+        </div>
+        <div class="truth-card anim-up">
+          <div class="tc-top"><div class="tc-num" style="background:#D94F2B;color:#fff;">02</div><div class="tc-head" style="color:#D94F2B;">A qualification advocates for you when you are not in the room.</div></div>
+          <div class="tc-body">It gives you a chair at the table. And sometimes you need to sit down before you can stand up — and when Olivia stands up, the room should already know her name.</div>
+        </div>
+        <div class="truth-card anim-up">
+          <div class="tc-top"><div class="tc-num" style="background:#D6E8FF;color:#080E20;">03</div><div class="tc-head" style="color:#D6E8FF;">Regret is heavier than hard work.</div></div>
+          <div class="tc-body">Mum has watched brilliant people coast through school and spend years wishing they had tried harder. The work is temporary. The regret is not. Olivia is too bright for regret.</div>
+        </div>
+        <div class="truth-card anim-up">
+          <div class="tc-top"><div class="tc-num" style="background:#F5C842;color:#080E20;">04</div><div class="tc-head" style="color:#F5C842;">Extraordinary people are not entitled to ordinary effort.</div></div>
+          <div class="tc-body">Average students can afford average effort. Olivia is not average — she never has been. That is not pressure. That is Mum reflecting back what she already sees in her daughter.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 10 — DISCIPLINE IN PRACTICE ──────────────── -->
+  <div class="slide" id="s10" data-theme="light">
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#C9930A; color:#fff;">📋 &nbsp; WHAT DISCIPLINE LOOKS LIKE IN PRACTICE — A LOVING SYSTEM</div>
+      <div class="disc-sub anim-up">(Not a lecture. A proposal. Mum is the world's most enthusiastic project manager.)</div>
+      <div class="two-panels">
+        <div class="panel anim-up">
+          <h3>🕐 &nbsp; Olivia's Daily Rhythm</h3>
+          <div class="rhythm-row"><div class="r-key">School hours</div><div class="r-val">Full presence. Every class. No half-measures.</div></div>
+          <div class="rhythm-row alt"><div class="r-key">After school (1–2 hrs)</div><div class="r-val">Homework &amp; revision. Done properly, not rushed.</div></div>
+          <div class="rhythm-row"><div class="r-key">Music / Performance</div><div class="r-val">Protected time. Always. Fully earned &amp; celebrated.</div></div>
+          <div class="rhythm-row alt"><div class="r-key">Creative projects</div><div class="r-val">Style, design, DJing — Olivia's creative soul matters.</div></div>
+          <div class="rhythm-row"><div class="r-key">Exam season</div><div class="r-val">Music pauses briefly. Future Olivia says thank you.</div></div>
+        </div>
+        <div class="panel anim-up">
+          <h3>💛 &nbsp; What Mum Commits To</h3>
+          <div class="commit-item"><span class="ci-check">✅</span> Championing every musical and artistic pursuit — always.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Attending every single performance she possibly can.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Never comparing Olivia to anyone. Not once.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Celebrating every improvement — not just the A grades.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Supporting extra tutoring if Olivia ever needs it.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Trusting her fully when she shows Mum she can be trusted.</div>
+          <div class="commit-item"><span class="ci-check">✅</span> Never, ever stopping believing in her. Never.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 11 — THE DEAL ─────────────────────────────── -->
+  <div class="slide" id="s11" data-theme="dark">
+    <div class="notes-canvas" id="notes-canvas-11"></div>
+    <div class="slide-inner">
+      <div class="badge anim-up" style="background:#C9930A; color:#080E20;">🤝 &nbsp; THE DEAL — MUM'S PROMISES &nbsp;·&nbsp; OLIVIA'S COMMITMENT</div>
+      <div class="deal-cols">
+        <div class="deal-col anim-up">
+          <div class="deal-header" style="background:#0A7373;color:#F5C842;">What Mum Promises Olivia:</div>
+          <div class="deal-body">
+            <div class="deal-item">🎵 &nbsp; Full support of every musical ambition — every single one</div>
+            <div class="deal-item">🎟️ &nbsp; Front row at every performance she can possibly attend</div>
+            <div class="deal-item">📚 &nbsp; Extra tutoring support any time — no questions</div>
+            <div class="deal-item">⏰ &nbsp; Respect for Olivia's creative schedule and rhythm</div>
+            <div class="deal-item">🎨 &nbsp; Celebration of her creativity, style, and individuality</div>
+            <div class="deal-item">🏆 &nbsp; A big celebration for every win — big or small</div>
+            <div class="deal-item">💜 &nbsp; Unconditional belief in Olivia. Always. No matter what.</div>
+          </div>
+        </div>
+        <div class="deal-col anim-up">
+          <div class="deal-header" style="background:#D94F2B;color:#fff;">What Mum Asks of Olivia:</div>
+          <div class="deal-body">
+            <div class="deal-item">📖 &nbsp; Show up to every class — present, engaged, curious</div>
+            <div class="deal-item">✍️ &nbsp; Complete every assignment properly and on time</div>
+            <div class="deal-item">📅 &nbsp; Revision that is real and consistent — not last-minute</div>
+            <div class="deal-item">🎯 &nbsp; Give exams the same energy she gives a performance</div>
+            <div class="deal-item">🗣️ &nbsp; Talk to Mum when things feel hard — she is always there</div>
+            <div class="deal-item">💡 &nbsp; Trust that her fast-learning brain makes this very possible</div>
+            <div class="deal-item">🌟 &nbsp; Believe that she is built for this — because she is.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 12 — FINALE ───────────────────────────────── -->
+  <div class="slide" id="s12" data-theme="light">
+    <div class="slide-inner">
+      <div class="finale-emoji anim-up">🌟 &nbsp; 🎵 &nbsp; 🎓 &nbsp; 🎻 &nbsp; ⭐ &nbsp; 🥁</div>
+      <h2 class="anim-up">Picture This, Olivia.</h2>
+      <div class="vision-box anim-up">
+        <p>You are standing on a stage — but it is the stage you chose, not the one you settled for.</p>
+        <p>You are introducing yourself: <em>Dr. Olivia.</em> Or <em>Advocate Olivia.</em> Or <em>Artistic Director Olivia.</em></p>
+        <p>And then you sit down at the piano — because you still play all six. You never stopped.</p>
+        <p>Because you did both. Because Mum told you that you could. <strong style="color:var(--gold-lt);">And you believed her.</strong></p>
+      </div>
+      <div class="finale-pills anim-up">
+        <div class="finale-pill gold">🎵 &nbsp; Keep the Music</div>
+        <div class="finale-pill navy">📚 &nbsp; Earn the Degree</div>
+        <div class="finale-pill coral">🌍 &nbsp; Change the World</div>
+      </div>
+      <div class="mum-note anim-up">— With all the love and all the belief in the world. Mum. 💛</div>
+    </div>
+  </div>
+
+</div><!-- /#deck -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CORE PRESENTATION ENGINE
+// ═══════════════════════════════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const TOTAL  = slides.length;
+let current  = 0;
+let isAnimating = false;
+
+const progressBar   = document.getElementById('progress-bar');
+const slideCounter  = document.getElementById('slide-counter');
+const btnPrev       = document.getElementById('btn-prev');
+const btnNext       = document.getElementById('btn-next');
+const dotsContainer = document.getElementById('dots');
+
+// ── Build dots ─────────────────────────────────────────────────
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  dotsContainer.appendChild(d);
+});
+const dotEls = Array.from(dotsContainer.querySelectorAll('.dot'));
+
+// ── Go to slide ────────────────────────────────────────────────
+function goTo(idx) {
+  if (isAnimating || idx < 0 || idx >= TOTAL) return;
+  isAnimating = true;
+
+  slides[current].classList.remove('active');
+  current = idx;
+  slides[current].classList.add('active');
+
+  updateUI();
+
+  setTimeout(() => { isAnimating = false; }, 550);
+}
+
+function updateUI() {
+  const pct = ((current + 1) / TOTAL) * 100;
+  progressBar.style.width = pct + '%';
+  slideCounter.textContent = (current + 1) + ' / ' + TOTAL;
+
+  const isLight = slides[current].dataset.theme === 'light';
+  slideCounter.className = isLight ? 'on-light' : '';
+  btnPrev.className = 'nav-btn' + (isLight ? ' on-light' : '');
+  btnNext.className = 'nav-btn' + (isLight ? ' on-light' : '');
+
+  btnPrev.disabled = current === 0;
+  btnNext.disabled = current === TOTAL - 1;
+
+  dotEls.forEach((d, i) => {
+    d.className = 'dot' + (isLight ? ' on-light' : '') + (i === current ? ' active' : '');
+  });
+}
+
+// ── Keyboard ────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ')  { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'Home') goTo(0);
+  if (e.key === 'End')  goTo(TOTAL - 1);
+});
+
+// ── Button clicks ───────────────────────────────────────────────
+btnPrev.addEventListener('click', () => goTo(current - 1));
+btnNext.addEventListener('click', () => goTo(current + 1));
+
+// ── Touch / swipe ───────────────────────────────────────────────
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+    dx < 0 ? goTo(current + 1) : goTo(current - 1);
+  }
+}, { passive: true });
+
+// ── Mouse wheel ─────────────────────────────────────────────────
+let wheelCooldown = false;
+document.addEventListener('wheel', e => {
+  if (wheelCooldown) return;
+  wheelCooldown = true;
+  setTimeout(() => { wheelCooldown = false; }, 700);
+  e.deltaY > 0 ? goTo(current + 1) : goTo(current - 1);
+}, { passive: true });
+
+// ═══════════════════════════════════════════════════════════════
+// MUSICAL NOTE PARTICLES
+// ═══════════════════════════════════════════════════════════════
+const NOTE_SYMBOLS = ['♩','♪','♫','♬','𝄞','𝄢'];
+const NOTE_CANVASES = ['notes-canvas-1','notes-canvas-3','notes-canvas-5','notes-canvas-7','notes-canvas-9','notes-canvas-11'];
+
+function createNoteParticles(canvasId, count) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  for (let i = 0; i < count; i++) {
+    const note = document.createElement('div');
+    note.className = 'note-particle';
+    note.textContent = NOTE_SYMBOLS[Math.floor(Math.random() * NOTE_SYMBOLS.length)];
+    const left = Math.random() * 95;
+    const delay = Math.random() * 18;
+    const duration = 14 + Math.random() * 16;
+    const size = 12 + Math.random() * 14;
+    note.style.cssText = `left:${left}%;bottom:-40px;font-size:${size}px;animation-delay:${delay}s;animation-duration:${duration}s;color:rgba(245,200,66,${0.1 + Math.random()*0.12})`;
+    canvas.appendChild(note);
+  }
+}
+
+NOTE_CANVASES.forEach(id => createNoteParticles(id, 18));
+
+// ── Init ────────────────────────────────────────────────────────
+goTo(0);
+</script>
+</body>
+</html>
